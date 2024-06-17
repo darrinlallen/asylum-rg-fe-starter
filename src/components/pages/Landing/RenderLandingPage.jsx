@@ -1,7 +1,6 @@
 import React from 'react';
-// ADD IMPORTS BACK FOR GRAPHS SECTION
- import GrantRatesByOfficeImg from '../../../styles/Images/bar-graph-no-text.png';
- import GrantRatesByNationalityImg from '../../../styles/Images/pie-chart-no-text.png';
+import GrantRatesByOfficeImg from '../../../styles/Images/bar-graph-no-text.png';
+import GrantRatesByNationalityImg from '../../../styles/Images/pie-chart-no-text.png';
 import GrantRatesOverTimeImg from '../../../styles/Images/line-graph-no-text.png';
 import HrfPhoto from '../../../styles/Images/paper-stack.jpg';
 import '../../../styles/RenderLandingPage.less';
@@ -31,8 +30,21 @@ function RenderLandingPage(props) {
         </div>
       </div>
 
-      {/* Graphs Section: Add code here for the graphs section for your first ticket */}
-      {/* <div className="graphs-section"> */}
+      <div className="graphs-section">
+        <div className="graph grant-rates-by-office-graph-container">
+          <img src={GrantRatesByOfficeImg} alt="Grant Rates by Office" className="gr-office-img" />
+          <p>Grant Rates by Office</p>
+        </div>
+        <div className="graph grant-rates-by-nationality-container">
+          <img src={GrantRatesByNationalityImg} alt="Grant Rates by Nationality" className="gr-nationality-img" />
+          <p>Grant Rates by Nationality</p>
+        </div>
+        <div className="graph grant-rates-over-time-container">
+          <img src={GrantRatesOverTimeImg} alt="Grant Rates Over Time" className="gr-overtime-img" />
+          <p>Grant Rates Over Time</p>
+        </div>
+      </div>
+
       <div className="view-more-data-btn-container">
         <Button
           type="default"
@@ -59,14 +71,29 @@ function RenderLandingPage(props) {
           </h3>
         </div>
       </div>
-      <div>
-        {/* Bottom Section: Add code here for the graphs section for your first ticket */}
-        {/* <div className="bottom-section">*/}
-        <p onClick={() => scrollToTop()} className="back-to-top">
-          Back To Top ^
-        </p>
+
+      <div className="bottom-section">
+        <div className="graph grant-rates-by-office-graph-container">
+          <img src={GrantRatesByOfficeImg} alt="Grant Rates by Office" className="gr-office-img" />
+          <p>Grant Rates by Office</p>
+        </div>
+        <div className="graph grant-rates-by-nationality-container">
+          <img src={GrantRatesByNationalityImg} alt="Grant Rates by Nationality" className="gr-nationality-img" />
+          <p>Grant Rates by Nationality</p>
+        </div>
+        <div className="graph grant-rates-over-time-container">
+          <img src={GrantRatesOverTimeImg} alt="Grant Rates Over Time" className="gr-overtime-img" />
+          <p>Grant Rates Over Time</p>
+        </div>
       </div>
+
+      <p onClick={() => scrollToTop()} className="back-to-top">
+        Back To Top ^
+      </p>
     </div>
   );
 }
+
 export default RenderLandingPage;
+
+
