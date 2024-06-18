@@ -1,4 +1,3 @@
-
 @main-color: #404C4A;
 @secondary-color: #707070;
 @white: #FFFFFF;
@@ -16,6 +15,8 @@
     width: 100%;
     height: 20vh;
     margin-bottom: 10%;
+    align-items: center;
+    justify-content: center;
 }
 
 .hrf-logo-img-container img {
@@ -27,11 +28,10 @@
 .header-text-container {
     text-align: center;
     width: 100%;
-    align-items: center;
 }
 
 .header-text-container h1 {
-    font-size: 3rem;
+    font-size: 2.9rem;
     color: @white;
     font-family: 'moneta';
 }
@@ -39,7 +39,8 @@
 .header-text-container h3 {
     font-family: 'beatrice regular';
     color: @white;
-    font-size: 1.2rem;
+    font-size: 1rem;
+    padding: 0 2%;
 }
 
 .graphs-section {
@@ -85,6 +86,7 @@
 .middle-section-text-container h3 {
     font-family: 'acumin';
     font-size: 1.4rem;
+    padding: 0 2%;
 }
 
 .bottom-section {
@@ -109,7 +111,7 @@
 }
 
 .ant-btn:hover {
-    border-color: @secondary-color !important;
+    border-color: @secondary-color  !important;
 }
 
 @media @mobile-small {
@@ -365,7 +367,7 @@
         padding-top: 5%;
     }
 
-    .header-text-container h3 {
+    .header-text-container h3 h4 {
         font-size: .85rem;
         width: 85%;
         margin: 0 auto;
