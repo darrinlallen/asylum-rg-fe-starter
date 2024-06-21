@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import CitizenshipMapAll from './Graphs/CitizenshipMapAll';
 import CitizenshipMapSingleOffice from './Graphs/CitizenshipMapSingleOffice';
 import TimeSeriesAll from './Graphs/TimeSeriesAll';
@@ -10,105 +11,84 @@ import YearLimitsSelect from './YearLimitsSelect';
 import ViewSelect from './ViewSelect';
 import axios from 'axios';
 import { resetVisualizationQuery } from '../../../state/actionCreators';
-import test_data from '../../../data/test_data.json';
 import { colors } from '../../../styles/data_vis_colors';
 import ScrollToTopOnMount from '../../../utils/scrollToTopOnMount';
 
 const { background_color } = colors;
 
-function GraphWrapper(props) {
-  const { set_view, dispatch } = props;
-  let { office, view } = useParams();
-  if (!view) {
-    set_view('time-series');
-    view = 'time-series';
-  }
-  let map_to_render;
-  if (!office) {
-    switch (view) {
-      case 'time-series':
-        map_to_render = <TimeSeriesAll />;
-        break;
-      case 'office-heat-map':
-        map_to_render = <OfficeHeatMap />;
-        break;
-      case 'citizenship':
-        map_to_render = <CitizenshipMapAll />;
-        break;
-      default:
-        break;
-    }
-  } else {
-    switch (view) {
-      case 'time-series':
-        map_to_render = <TimeSeriesSingleOffice office={office} />;
-        break;
-      case 'citizenship':
-        map_to_render = <CitizenshipMapSingleOffice office={office} />;
-        break;
-      default:
-        break;
-    }
-  }
-  function updateStateWithNewData(years, view, office, stateSettingCallback) {
-    /*
-          _                                                                             _
-        |                                                                                 |
-        |   Example request for once the `/summary` endpoint is up and running:           |
-        |                                                                                 |
-        |     `${url}/summary?to=2022&from=2015&office=ZLA`                               |
-        |                                                                                 |
-        |     so in axios we will say:                                                    |
-        |                                                                                 |     
-        |       axios.get(`${url}/summary`, {                                             |
-        |         params: {                                                               |
-        |           from: <year_start>,                                                   |
-        |           to: <year_end>,                                                       |
-        |           office: <office>,       [ <-- this one is optional! when    ]         |
-        |         },                        [ querying by `all offices` there's ]         |
-        |       })                          [ no `office` param in the query    ]         |
-        |                                                                                 |
-          _                                                                             _
-                                   -- Mack 
-    
-    */
+function GraphWrapper({ set_view, dispatch }) {
+  const { office, view } = useParams();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-    if (office === 'all' || !office) {
-      axios
-        .get(process.env.REACT_APP_API_URI, {
-          // mock URL, can be simply replaced by `${Real_Production_URL}/summary` in prod!
-          params: {
-            from: years[0],
-            to: years[1],
-          },
-        })
-        .then(result => {
-          stateSettingCallback(view, office, test_data); // <-- `test_data` here can be simply replaced by `result.data` in prod!
-        })
-        .catch(err => {
-          console.error(err);
-        });
-    } else {
-      axios
-        .get(process.env.REACT_APP_API_URI, {
-          // mock URL, can be simply replaced by `${Real_Production_URL}/summary` in prod!
-          params: {
-            from: years[0],
-            to: years[1],
-            office: office,
-          },
-        })
-        .then(result => {
-          stateSettingCallback(view, office, test_data); // <-- `test_data` here can be simply replaced by `result.data` in prod!
-        })
-        .catch(err => {
-          console.error(err);
-        });
+  useEffect(() => {
+    if (!view) {
+      set_view('time-series');
     }
-  }
+  }, [view, set_view]);
+
+  const renderGraph = () => {
+    if (!office) {
+      switch (view) {
+        case 'time-series':
+          return <TimeSeriesAll />;
+        case 'office-heat-map':
+          return <OfficeHeatMap />;
+        case 'citizenship':
+          return <CitizenshipMapAll />;
+        default:
+          return null;
+      }
+    } else {
+      switch (view) {
+        case 'time-series':
+          return <TimeSeriesSingleOffice office={office} />;
+        case 'citizenship':
+          return <CitizenshipMapSingleOffice office={office} />;
+        default:
+          return null;
+      }
+    }
+  };
+
+  const fetchData = async (endpoint, params, stateSettingCallback) => {
+    try {
+      setLoading(true);
+      const result = await axios.get(`https://hrf-asylum-be-b.herokuapp.com/${endpoint}`, { params });
+      stateSettingCallback(view, office, result.data);
+    } catch (err) {
+      console.error(err);
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateStateWithNewData = (years, view, office, stateSettingCallback) => {
+    const params = { from: years[0], to: years[1] };
+    if (office && office !== 'all') {
+      params.office = office;
+    }
+    
+    let endpoint;
+    switch (view) {
+      case 'time-series':
+        endpoint = 'fiscalSummary';
+        break;
+      case 'citizenship':
+        endpoint = 'citizenshipSummary';
+        break;
+      default:
+        endpoint = 'fiscalSummary';
+        break;
+    }
+    fetchData(endpoint, params, stateSettingCallback);
+  };
+
   const clearQuery = (view, office) => {
     dispatch(resetVisualizationQuery(view, office));
   };
+
   return (
     <div
       className="map-wrapper-container"
@@ -121,7 +101,7 @@ function GraphWrapper(props) {
       }}
     >
       <ScrollToTopOnMount />
-      {map_to_render}
+      {loading ? <div>Loading...</div> : error ? <div>Error loading data</div> : renderGraph()}
       <div
         className="user-input-sidebar-container"
         style={{
@@ -143,5 +123,10 @@ function GraphWrapper(props) {
     </div>
   );
 }
+
+GraphWrapper.propTypes = {
+  set_view: PropTypes.func.isRequired,
+  dispatch: PropTypes.func.isRequired,
+};
 
 export default connect()(GraphWrapper);
